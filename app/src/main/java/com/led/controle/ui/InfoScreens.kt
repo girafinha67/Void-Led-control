@@ -193,7 +193,7 @@ fun GuideScreen(onBack: () -> Unit) {
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     ToolScaffold("Sobre", onBack, showDevice = false) {
-        SectionCard("LED Controle 3.3") {
+        SectionCard("LED Controle 3.4") {
             Hint("Teste de controles e controle da luz LED.")
             Row2("Android", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             Row2("Aparelho", "${Build.MANUFACTURER} ${Build.MODEL}")
@@ -206,11 +206,11 @@ fun AboutScreen(onBack: () -> Unit) {
 fun SettingsScreen(onBack: () -> Unit) {
     ToolScaffold("Configurações", onBack, showDevice = false) {
         SectionCard("Geral") {
-            SwitchRow("Manter tela ligada", "Evita a tela apagar durante os testes.", Prefs.keepOn) { Prefs.setKeepOn(it) }
+            SwitchRow("Manter tela ligada", "Evita a tela apagar durante os testes.", Prefs.keepOn) { Prefs.updateKeepOn(it) }
         }
         SectionCard("Zona morta dos analógicos") {
             Text("${(Prefs.deadzone * 100).toInt()}%")
-            Slider(value = Prefs.deadzone, onValueChange = { Prefs.setDeadzone(it) }, valueRange = 0f..0.4f)
+            Slider(value = Prefs.deadzone, onValueChange = { Prefs.updateDeadzone(it) }, valueRange = 0f..0.4f)
             Hint("Aparece como círculo tracejado nos testes de analógicos.")
         }
     }

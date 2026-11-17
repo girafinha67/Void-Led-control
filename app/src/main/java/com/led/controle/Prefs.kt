@@ -92,7 +92,7 @@ object Prefs {
         load(type, map(type), if (type == 1) defaultPs1 else defaultPs2)
     }
 
-    fun setDeadzone(v: Float) { deadzone = v; sp.edit().putFloat("deadzone", v).apply() }
-    fun setKeepOn(v: Boolean) { keepOn = v; sp.edit().putBoolean("keepOn", v).apply() }
-    fun setShowHints(v: Boolean) { showHints = v; sp.edit().putBoolean("hints", v).apply() }
+    fun updateDeadzone(v: Float) { deadzone = v; sp.edit().putFloat("deadzone", v).apply() }
+    fun updateKeepOn(v: Boolean) { keepOn = v; sp.edit().putBoolean("keepOn", v).apply() }
+    fun updateShowHints(v: Boolean) { showHints = v; sp.edit().putBoolean("hints", v).apply() }
 }
