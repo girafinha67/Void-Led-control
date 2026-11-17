@@ -48,8 +48,9 @@ fun LedScreen(onBack: () -> Unit) {
 
     // Quando o serviço está ativo, ele é o dono da sessão de LED; senão, a tela abre a sua.
     DisposableEffect(dev?.id, service) {
-        if (!service) runner.attach(dev)
-        onDispose { if (!service) runner.stop() }
+        val svc = service
+        if (!svc) runner.attach(dev)
+        onDispose { if (!svc) runner.stop() }
     }
     fun apply(c: LedCfg) {
         cfg = c; Cfg.led = c

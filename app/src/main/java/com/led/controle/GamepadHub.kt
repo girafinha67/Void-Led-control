@@ -47,7 +47,7 @@ object GamepadHub {
     }
 
     fun refresh() {
-        val list = InputDevice.getDeviceIds().mapNotNull { InputDevice.getDevice(it) }.filter { isGamepad(it) }
+        val list = InputDevice.getDeviceIds().toList().mapNotNull { InputDevice.getDevice(it) }.filter { isGamepad(it) }
         devices = list
         if (list.none { it.id == selectedId }) select(list.firstOrNull()?.id ?: -1)
     }

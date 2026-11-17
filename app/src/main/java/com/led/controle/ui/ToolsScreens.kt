@@ -161,9 +161,12 @@ fun LatencyScreen(onBack: () -> Unit) {
 
     DisposableEffect(Unit) {
         val l: (Int, Boolean, Long) -> Unit = { _, down, t ->
-            if (down) when (phase) {
-                1 -> { early = true; phase = 0 }
-                2 -> { results.add(((t - t0) / 1_000_000L).toInt()); phase = 0; early = false }
+            if (down) {
+                if (phase == 1) {
+                    early = true; phase = 0
+                } else if (phase == 2) {
+                    results.add(((t - t0) / 1_000_000L).toInt()); phase = 0; early = false
+                }
             }
         }
         GamepadHub.keyListeners.add(l)

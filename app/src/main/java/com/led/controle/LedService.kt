@@ -10,6 +10,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.hardware.input.InputManager
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +47,11 @@ class LedService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        startForeground(1, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        if (Build.VERSION.SDK_INT >= 34) {
+            startForeground(1, notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(1, notification())
+        }
         rebind()
         return START_STICKY
     }
@@ -65,7 +71,7 @@ class LedService : Service() {
             .setContentTitle("LED Controle ativo")
             .setContentText("Toque em Parar para devolver o LED ao normal")
             .setOngoing(true)
-            .addAction(Notification.Action.Builder(null, "Parar", stop).build())
+            .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_stat_led), "Parar", stop).build())
             .build()
     }
 

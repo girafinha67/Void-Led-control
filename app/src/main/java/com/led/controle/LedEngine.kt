@@ -32,7 +32,7 @@ fun scaleColor(c: Int, k: Float): Int {
 
 /** Primeiro controle que expõe LED RGB ao Android. */
 fun firstRgbDevice(ctx: Context): InputDevice? =
-    InputDevice.getDeviceIds().mapNotNull { InputDevice.getDevice(it) }
+    InputDevice.getDeviceIds().toList().mapNotNull { InputDevice.getDevice(it) }
         .filter { GamepadHub.isGamepad(it) }
         .firstOrNull { d -> runCatching { d.lightsManager.lights.any { it.hasRgbControl() } }.getOrDefault(false) }
 
