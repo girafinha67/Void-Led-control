@@ -193,7 +193,7 @@ fun GuideScreen(onBack: () -> Unit) {
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     ToolScaffold("Sobre", onBack, showDevice = false) {
-        SectionCard("LED Controle 3.0") {
+        SectionCard("LED Controle 3.1") {
             Hint("Teste de controles e controle da luz LED.")
             Row2("Android", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             Row2("Aparelho", "${Build.MANUFACTURER} ${Build.MODEL}")
