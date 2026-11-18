@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 package com.led.controle.ui
 
 import android.view.KeyEvent
@@ -66,10 +67,10 @@ fun AndroidModeScreen(onBack: () -> Unit) {
 }
 
 // ------------------------------------------------------------------ Modo PS
-private val PsBlue = Color(0xFF6BA8FF)
-private val PsPink = Color(0xFFFF8AD0)
-private val PsRed = Color(0xFFFF6B6B)
-private val PsGreen = Color(0xFF4CD1A5)
+private val PsBlue = Color(0xFFE6E6E6)
+private val PsPink = Color(0xFFCFCFCF)
+private val PsRed = Color(0xFFBDBDBD)
+private val PsGreen = Color(0xFFF5F5F5)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -91,7 +92,7 @@ private fun PsKey(
     ) {
         Text(
             label, fontSize = if (wide) 13.sp else 22.sp, fontWeight = FontWeight.Bold,
-            color = if (active || isLearning) Color(0xFF0B1220) else color
+            color = if (active || isLearning) InkBlack else color
         )
     }
 }
@@ -171,7 +172,7 @@ private fun DirKey(sym: String, active: Boolean) {
         Modifier.size(40.dp).clip(RoundedCornerShape(8.dp))
             .background(if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh),
         contentAlignment = Alignment.Center
-    ) { Text(sym, color = if (active) Color(0xFF0B1220) else MaterialTheme.colorScheme.primary) }
+    ) { Text(sym, color = if (active) InkBlack else MaterialTheme.colorScheme.primary) }
 }
 
 // ------------------------------------------------------------------ Modo Universal

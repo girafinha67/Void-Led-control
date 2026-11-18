@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 package com.led.controle
 
 import android.app.Notification
@@ -38,7 +39,7 @@ class LedService : Service() {
         im = getSystemService(InputManager::class.java)
         im.registerInputDeviceListener(listener, null)
         val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(NotificationChannel(CHANNEL, "LED Controle", NotificationManager.IMPORTANCE_LOW))
+        nm.createNotificationChannel(NotificationChannel(CHANNEL, "Controler Tester", NotificationManager.IMPORTANCE_LOW))
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -68,7 +69,7 @@ class LedService : Service() {
         )
         return Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_led)
-            .setContentTitle("LED Controle ativo")
+            .setContentTitle("Controler Tester ativo")
             .setContentText("Toque em Parar para devolver o LED ao normal")
             .setOngoing(true)
             .addAction(Notification.Action.Builder(Icon.createWithResource(this, R.drawable.ic_stat_led), "Parar", stop).build())

@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 package com.led.controle.ui
 
 import android.hardware.Sensor
@@ -193,8 +194,9 @@ fun GuideScreen(onBack: () -> Unit) {
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     ToolScaffold("Sobre", onBack, showDevice = false) {
-        SectionCard("LED Controle 3.4") {
+        SectionCard("Controler Tester 4.0") {
             Hint("Teste de controles e controle da luz LED.")
+            Row2("Criado por", com.led.controle.WATERMARK.removePrefix("by: "))
             Row2("Android", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             Row2("Aparelho", "${Build.MANUFACTURER} ${Build.MODEL}")
             Row2("Pacote", "com.led.controle")

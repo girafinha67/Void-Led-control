@@ -1,31 +1,48 @@
+// by: H3NRI_013/girafinha67
 package com.led.controle.ui
 
+import android.graphics.Typeface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 
+// Identidade preto e branco (referência "About me"): grafite, cinzas e branco.
 private val Dark = darkColorScheme(
-    primary = Color(0xFFB0C6FF),
-    onPrimary = Color(0xFF002D6E),
-    primaryContainer = Color(0xFF2B4678),
-    onPrimaryContainer = Color(0xFFD9E2FF),
-    secondary = Color(0xFFC0C6DC),
-    background = Color(0xFF111318),
-    onBackground = Color(0xFFE2E2E9),
-    surface = Color(0xFF111318),
-    onSurface = Color(0xFFE2E2E9),
-    surfaceVariant = Color(0xFF44474F),
-    onSurfaceVariant = Color(0xFFC4C6D0),
-    surfaceContainer = Color(0xFF1E1F26),
-    surfaceContainerHigh = Color(0xFF282A2F),
-    outline = Color(0xFF8E9099),
-    error = Color(0xFFFFB4AB)
+    primary = Color(0xFFF2F2F2),
+    onPrimary = Color(0xFF0A0A0A),
+    primaryContainer = Color(0xFF2A2A2A),
+    onPrimaryContainer = Color(0xFFEDEDED),
+    secondary = Color(0xFFBDBDBD),
+    onSecondary = Color(0xFF0A0A0A),
+    secondaryContainer = Color(0xFF2A2A2A),
+    onSecondaryContainer = Color(0xFFEDEDED),
+    tertiary = Color(0xFFD0D0D0),
+    background = Color(0xFF0A0A0A),
+    onBackground = Color(0xFFEDEDED),
+    surface = Color(0xFF0A0A0A),
+    onSurface = Color(0xFFEDEDED),
+    surfaceVariant = Color(0xFF2E2E2E),
+    onSurfaceVariant = Color(0xFFB5B5B5),
+    surfaceContainer = Color(0xFF161616),
+    surfaceContainerHigh = Color(0xFF232323),
+    surfaceContainerHighest = Color(0xFF2C2C2C),
+    outline = Color(0xFF8A8A8A),
+    outlineVariant = Color(0xFF3A3A3A),
+    error = Color(0xFFE59A94)
 )
 
-val OkGreen = Color(0xFF7EDC9B)
-val WarnYellow = Color(0xFFFFD27A)
-val BadRed = Color(0xFFFF8A80)
+// Cores de status, bem suaves para não quebrar o visual monocromático.
+val OkGreen = Color(0xFFA9D8B8)
+val WarnYellow = Color(0xFFE8D29C)
+val BadRed = Color(0xFFE59A94)
+
+val Hairline = Color(0x33FFFFFF)
+val InkBlack = Color(0xFF0A0A0A)
+
+/** Fonte condensada e pesada dos títulos (como o "ABOUT" da referência). */
+val Condensed = FontFamily(Typeface.create("sans-serif-condensed", Typeface.BOLD))
 
 @Composable
 fun LedTheme(content: @Composable () -> Unit) {

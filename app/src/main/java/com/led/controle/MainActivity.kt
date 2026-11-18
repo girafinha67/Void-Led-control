@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 package com.led.controle
 
 import android.hardware.input.InputManager
@@ -8,6 +9,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalView
@@ -30,7 +41,7 @@ class MainActivity : ComponentActivity() {
         im = getSystemService(InputManager::class.java)
         im.registerInputDeviceListener(listener, null)
         GamepadHub.refresh()
-        setContent { LedTheme { AppRoot() } }
+        setContent { LedTheme { AppBackground { AppRoot() } } }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
@@ -53,23 +64,42 @@ fun AppRoot() {
     LaunchedEffect(Prefs.keepOn) { view.keepScreenOn = Prefs.keepOn }
     BackHandler(enabled = route != "home") { back() }
 
-    when (route) {
-        "home" -> HomeScreen { route = it }
-        "android" -> AndroidModeScreen(back)
-        "ps1" -> PsModeScreen(1, back)
-        "ps2" -> PsModeScreen(2, back)
-        "universal" -> UniversalScreen(back)
-        "vibration" -> VibrationScreen(back)
-        "led" -> LedScreen(back)
-        "sticks" -> SticksScreen(back)
-        "triggers" -> TriggersScreen(back)
-        "latency" -> LatencyScreen(back)
-        "stress" -> StressScreen(back)
-        "sensors" -> SensorsScreen(back)
-        "info" -> DeviceInfoScreen(back)
-        "diag" -> DiagnosticScreen(back)
-        "guide" -> GuideScreen(back)
-        "about" -> AboutScreen(back)
-        "settings" -> SettingsScreen(back)
+    AnimatedContent(
+        targetState = route,
+        transitionSpec = {
+            if (targetState == "home") {
+                (fadeIn(tween(380, 120)) + slideInHorizontally(tween(420, easing = FastOutSlowInEasing)) { -it / 5 } +
+                    scaleIn(initialScale = 0.94f, animationSpec = tween(420))) togetherWith
+                    (fadeOut(tween(240)) + slideOutHorizontally(tween(420, easing = FastOutSlowInEasing)) { it / 3 } +
+                        scaleOut(targetScale = 1.04f, animationSpec = tween(300)))
+            } else {
+                (fadeIn(tween(380, 120)) + slideInHorizontally(tween(420, easing = FastOutSlowInEasing)) { it / 3 } +
+                    scaleIn(initialScale = 0.94f, animationSpec = tween(420))) togetherWith
+                    (fadeOut(tween(240)) + slideOutHorizontally(tween(420, easing = FastOutSlowInEasing)) { -it / 5 } +
+                        scaleOut(targetScale = 0.96f, animationSpec = tween(300)))
+            }
+        },
+        label = "screens"
+    ) { r ->
+        when (r) {
+            "home" -> HomeScreen { route = it }
+            "android" -> AndroidModeScreen(back)
+            "ps1" -> PsModeScreen(1, back)
+            "ps2" -> PsModeScreen(2, back)
+            "universal" -> UniversalScreen(back)
+            "vibration" -> VibrationScreen(back)
+            "led" -> LedScreen(back)
+            "sticks" -> SticksScreen(back)
+            "triggers" -> TriggersScreen(back)
+            "latency" -> LatencyScreen(back)
+            "stress" -> StressScreen(back)
+            "sensors" -> SensorsScreen(back)
+            "info" -> DeviceInfoScreen(back)
+            "diag" -> DiagnosticScreen(back)
+            "guide" -> GuideScreen(back)
+            "about" -> AboutScreen(back)
+            "settings" -> SettingsScreen(back)
+            else -> Unit
+        }
     }
 }

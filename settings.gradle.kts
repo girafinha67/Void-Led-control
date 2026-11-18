@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 pluginManagement {
     repositories {
         google()

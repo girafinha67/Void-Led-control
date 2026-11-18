@@ -1,3 +1,4 @@
+// by: H3NRI_013/girafinha67
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,8 +12,8 @@ android {
         applicationId = "com.led.controle"
         minSdk = 31
         targetSdk = 34
-        versionCode = 7
-        versionName = "3.4"
+        versionCode = 8
+        versionName = "4.0"
     }
 
     buildTypes {
