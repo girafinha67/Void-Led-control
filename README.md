@@ -1,4 +1,4 @@
-# Controler Tester 4.0
+# Controler Tester 5.0
 
 Projeto Android (Kotlin + Jetpack Compose, Material 3). minSdk 31 (Android 12+).
 Antigo "LED Controle" — agora com identidade preto e branco, foto do controle conectado

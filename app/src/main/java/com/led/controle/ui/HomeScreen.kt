@@ -471,7 +471,7 @@ private fun StatusCircles(dev: android.view.InputDevice?, nav: (String) -> Unit)
             Cap("Conexão", Icons.Filled.SportsEsports, dev != null, "info"),
             Cap("Vibração", Icons.Filled.Vibration, dev != null && safe { dev.vibratorManager.vibratorIds.isNotEmpty() }, "vibration"),
             Cap("LED", Icons.Filled.Lightbulb, dev != null && safe { dev.lightsManager.lights.any { it.hasRgbControl() } }, "led"),
-            Cap("Sensores", Icons.Filled.Sensors, dev != null && safe { dev.sensorManager.sensorList.isNotEmpty() }, "sensors"),
+            Cap("Sensores", Icons.Filled.Sensors, dev != null && safe { dev.sensorManager.getSensorList(android.hardware.Sensor.TYPE_ALL).isNotEmpty() }, "sensors"),
             Cap("Bateria", Icons.Filled.BatteryFull, dev != null && safe { dev.batteryState.isPresent }, "info")
         )
     }
