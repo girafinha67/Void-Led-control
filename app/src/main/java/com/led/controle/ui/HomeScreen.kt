@@ -1,4 +1,6 @@
 // by: H3NRI_013/girafinha67
+@file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+
 package com.led.controle.ui
 
 import androidx.compose.animation.AnimatedContent
@@ -110,7 +112,7 @@ fun HomeScreen(nav: (String) -> Unit) {
     LaunchedEffect(playing) {
         if (playing) while (true) {
             delay(3800)
-            if (!pager.isScrollInProgress) pager.animateScrollToPage(pager.currentPage + 1, animationSpec = tween(750, easing = FastOutSlowInEasing))
+            if (!pager.isScrollInProgress) pager.animateScrollToPage(pager.currentPage + 1)
         }
     }
 
@@ -150,7 +152,11 @@ fun HomeScreen(nav: (String) -> Unit) {
                     scaleX = s; scaleY = s; alpha = 1f - 0.45f * k
                 }
             ) {
-                if (off < 0.5f) nav(e.route) else scope.launch { pager.animateScrollToPage(page) }
+                if (off < 0.5f) {
+                    nav(e.route)
+                } else {
+                    scope.launch { pager.animateScrollToPage(page) }
+                }
             }
         }
         StatusCircles(sel, nav)
@@ -334,7 +340,13 @@ private fun DevicePill(modifier: Modifier) {
     Box(modifier.height(38.dp)) {
         Row(
             Modifier.fillMaxSize()
-                .bounceClick { if (devs.size > 1) open = true else GamepadHub.refresh() }
+                .bounceClick {
+                    if (devs.size > 1) {
+                        open = true
+                    } else {
+                        GamepadHub.refresh()
+                    }
+                }
                 .clip(CircleShape).background(Color(0xCC0A0A0A)).border(1.2.dp, Color.White.copy(alpha = 0.7f), CircleShape)
                 .padding(start = 14.dp, end = 10.dp),
             verticalAlignment = Alignment.CenterVertically
