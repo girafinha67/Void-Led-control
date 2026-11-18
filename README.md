@@ -1,4 +1,4 @@
-# Controler Tester 6.0
+# Controler Tester 7.0
 
 Projeto Android (Kotlin + Jetpack Compose, Material 3). minSdk 31 (Android 12+).
 Antigo "LED Controle" — agora com identidade preto e branco, foto do controle conectado
@@ -16,6 +16,7 @@ Antigo "LED Controle" — agora com identidade preto e branco, foto do controle 
 - LedEngine.kt         controle do LED (LightsManager) e efeitos
 - LedService.kt        serviço que mantém o LED com o app fechado + BootReceiver
 - Prefs.kt             configurações e mapeamento dos botões PS
+- CrashLog.kt          guarda o erro da última queda; ui/CrashDialog.kt mostra na abertura seguinte (botão Copiar)
 - ui/Theme.kt          paleta P&B e fonte condensada
 - ui/Components.kt     fundo granulado, cabeçalho, cards e animações (appear, bounceClick)
 - ui/HomeScreen.kt     tela inicial (hero com foto, player, carrossel, círculos de status)

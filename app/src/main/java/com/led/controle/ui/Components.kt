@@ -88,12 +88,15 @@ private val noiseBitmap: ImageBitmap by lazy {
 @Composable
 fun AppBackground(content: @Composable () -> Unit) {
     val grain = remember { ShaderBrush(ImageShader(noiseBitmap, TileMode.Repeated, TileMode.Repeated)) }
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF1C1C1C), Color(0xFF0B0B0B), Color(0xFF050505))))
-            .drawBehind { drawRect(grain) }
-    ) { content() }
+    Box(Modifier.fillMaxSize()) {
+        // Fundo em camada própria: não é redesenhado quando os elementos da tela animam.
+        Box(
+            Modifier.fillMaxSize().graphicsLayer { }
+                .background(Brush.verticalGradient(listOf(Color(0xFF1C1C1C), Color(0xFF0B0B0B), Color(0xFF050505))))
+                .drawBehind { drawRect(grain) }
+        )
+        content()
+    }
 }
 
 // ======================= Animações reutilizáveis =======================
@@ -280,8 +283,8 @@ fun DeviceBar() {
             if (devs.size > 1) Icon(Icons.Filled.SwapHoriz, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.width(8.dp))
             Box(
-                Modifier.size(9.dp).clip(CircleShape)
-                    .background(if (sel != null) Color.White.copy(alpha = dotAlpha) else Color(0xFF444444))
+                Modifier.size(9.dp).graphicsLayer { alpha = if (sel != null) dotAlpha else 1f }.clip(CircleShape)
+                    .background(if (sel != null) Color.White else Color(0xFF444444))
             )
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {

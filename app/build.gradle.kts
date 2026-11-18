@@ -12,8 +12,8 @@ android {
         applicationId = "com.led.controle"
         minSdk = 31
         targetSdk = 34
-        versionCode = 10
-        versionName = "6.0"
+        versionCode = 11
+        versionName = "7.0"
     }
 
     buildTypes {

@@ -63,6 +63,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +72,10 @@ import com.led.controle.ControllerModel
 import com.led.controle.GamepadHub
 import com.led.controle.R
 import com.led.controle.WATERMARK
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.min
@@ -103,22 +108,37 @@ private val CardW = 160.dp
 @Composable
 fun HomeScreen(nav: (String) -> Unit) {
     val n = allEntries.size
-    val start = remember { val mid = Int.MAX_VALUE / 2; mid - mid % n }
-    val pager = rememberPagerState(initialPage = start) { Int.MAX_VALUE }
+    val total = n * 1000                 // "infinito" na prática, sem estourar limites do Int
+    val start = n * 500
+    val pager = rememberPagerState(initialPage = start) { total }
     var playing by remember { mutableStateOf(true) }
     val scope = rememberCoroutineScope()
 
     // Rolagem automática do carrossel (pausa pelo botão do player).
+    // O toque do usuário cancela a animação: isso é normal e não pode encerrar o loop.
     LaunchedEffect(playing) {
         if (playing) while (true) {
             delay(3800)
-            if (!pager.isScrollInProgress) pager.animateScrollToPage(pager.currentPage + 1)
+            if (!pager.isScrollInProgress) {
+                try {
+                    pager.animateScrollToPage(pager.currentPage + 1)
+                } catch (e: CancellationException) {
+                    currentCoroutineContext().ensureActive()
+                }
+            }
+        }
+    }
+
+    // Se chegar perto das pontas, volta silenciosamente para o meio (mesma função, sem pulo visível).
+    LaunchedEffect(pager) {
+        snapshotFlow { if (pager.isScrollInProgress) -1 else pager.currentPage }.collect { p ->
+            if (p >= 0 && (p < n * 50 || p > total - n * 50)) pager.scrollToPage(start + p % n)
         }
     }
 
     val sel = GamepadHub.selected
     val model = ControllerModel.detect(sel)
-    val current = ((pager.currentPage % n) + n) % n
+    val current = pager.currentPage % n
     val screenW = LocalConfiguration.current.screenWidthDp
 
     Column(
@@ -136,22 +156,24 @@ fun HomeScreen(nav: (String) -> Unit) {
         HorizontalPager(
             state = pager,
             modifier = Modifier.fillMaxWidth().height(196.dp).appear(3, 40.dp),
-            contentPadding = PaddingValues(horizontal = ((screenW - CardW.value) / 2f).dp),
+            contentPadding = PaddingValues(horizontal = ((screenW - CardW.value) / 2f).coerceAtLeast(0f).dp),
             pageSize = PageSize.Fixed(CardW),
             pageSpacing = 12.dp,
             verticalAlignment = Alignment.CenterVertically
         ) { page ->
-            val idx = ((page % n) + n) % n
+            val idx = page % n
             val e = allEntries[idx]
-            val off = abs((pager.currentPage - page) + pager.currentPageOffsetFraction)
-            val k = min(off, 1f)
             FunctionCard(
                 e, idx + 1,
                 Modifier.height(188.dp).graphicsLayer {
-                    val s = 1f - 0.16f * k
-                    scaleX = s; scaleY = s; alpha = 1f - 0.45f * k
+                    // lido na fase de desenho: não recompõe a cada quadro da rolagem
+                    val off = abs((pager.currentPage - page) + pager.currentPageOffsetFraction)
+                    val k = min(off, 1f)
+                    val sc = 1f - 0.16f * k
+                    scaleX = sc; scaleY = sc; alpha = 1f - 0.45f * k
                 }
             ) {
+                val off = abs((pager.currentPage - page) + pager.currentPageOffsetFraction)
                 if (off < 0.5f) {
                     nav(e.route)
                 } else {
@@ -183,52 +205,67 @@ private fun Hero(model: ControllerModel, nav: (String) -> Unit) {
     val glow by inf.animateFloat(0.18f, 0.34f, infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "glow")
     val spin by inf.animateFloat(0f, 360f, infiniteRepeatable(tween(16000, easing = LinearEasing)), label = "spin")
     val ping by inf.animateFloat(0f, 1f, infiniteRepeatable(tween(2400, easing = LinearEasing)), label = "ping")
-    val anyPressed = GamepadHub.pressed.values.any { it }
+    val anyPressed by remember { derivedStateOf { GamepadHub.pressed.values.any { it } } }
     val pop by animateFloatAsState(if (anyPressed) 1.06f else 1f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), label = "pop")
 
     Box(Modifier.fillMaxWidth().height(frameH + 40.dp).padding(horizontal = 12.dp).appear(0, 28.dp)) {
-        // Moldura com recorte em "U" embaixo e fundo de montanhas P&B
-        Canvas(Modifier.fillMaxWidth().height(frameH)) {
-            val w = size.width
-            val h = size.height
-            val side = h - 28.dp.toPx()
-            val r = 30.dp.toPx()
-            val cx = w / 2f
-            val path = Path().apply {
-                moveTo(0f, r); quadraticBezierTo(0f, 0f, r, 0f)
-                lineTo(w - r, 0f); quadraticBezierTo(w, 0f, w, r)
-                lineTo(w, side - r); quadraticBezierTo(w, side, w - r, side)
-                lineTo(cx + 104.dp.toPx(), side)
-                cubicTo(cx + 74.dp.toPx(), side, cx + 66.dp.toPx(), h, cx + 44.dp.toPx(), h)
-                lineTo(cx - 44.dp.toPx(), h)
-                cubicTo(cx - 66.dp.toPx(), h, cx - 74.dp.toPx(), side, cx - 104.dp.toPx(), side)
-                lineTo(r, side); quadraticBezierTo(0f, side, 0f, side - r)
-                close()
-            }
-            clipPath(path) {
-                drawRect(Brush.verticalGradient(listOf(Color(0xFFA9A9A9), Color(0xFF4C4C4C)), 0f, side))
+        // Moldura com recorte em "U" embaixo e fundo de montanhas P&B (desenhada uma vez e guardada em cache)
+        Box(
+            Modifier.fillMaxWidth().height(frameH).drawWithCache {
+                val w = size.width
+                val h = size.height
+                val side = h - 28.dp.toPx()
+                val r = 30.dp.toPx()
+                val cx = w / 2f
+                val path = Path().apply {
+                    moveTo(0f, r); quadraticBezierTo(0f, 0f, r, 0f)
+                    lineTo(w - r, 0f); quadraticBezierTo(w, 0f, w, r)
+                    lineTo(w, side - r); quadraticBezierTo(w, side, w - r, side)
+                    lineTo(cx + 104.dp.toPx(), side)
+                    cubicTo(cx + 74.dp.toPx(), side, cx + 66.dp.toPx(), h, cx + 44.dp.toPx(), h)
+                    lineTo(cx - 44.dp.toPx(), h)
+                    cubicTo(cx - 66.dp.toPx(), h, cx - 74.dp.toPx(), side, cx - 104.dp.toPx(), side)
+                    lineTo(r, side); quadraticBezierTo(0f, side, 0f, side - r)
+                    close()
+                }
                 val far = Path().apply {
                     moveTo(0f, side * .62f); lineTo(w * .18f, side * .40f); lineTo(w * .30f, side * .52f)
                     lineTo(w * .48f, side * .28f); lineTo(w * .64f, side * .50f); lineTo(w * .80f, side * .36f)
                     lineTo(w, side * .58f); lineTo(w, h); lineTo(0f, h); close()
                 }
-                drawPath(far, Color(0xFF7D7D7D))
                 val near = Path().apply {
                     moveTo(0f, side * .80f); lineTo(w * .22f, side * .62f); lineTo(w * .40f, side * .76f)
                     lineTo(w * .58f, side * .60f); lineTo(w * .78f, side * .78f); lineTo(w, side * .66f)
                     lineTo(w, h); lineTo(0f, h); close()
                 }
-                drawPath(near, Color(0xFF383838))
-                drawRect(Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000)), side * .45f, h))
-                drawRect(
-                    Brush.radialGradient(
-                        listOf(Color.White.copy(alpha = glow), Color.Transparent),
-                        center = Offset(cx, side * .40f), radius = w * .48f
-                    )
-                )
+                val sky = Brush.verticalGradient(listOf(Color(0xFFA9A9A9), Color(0xFF4C4C4C)), 0f, side)
+                val shade = Brush.verticalGradient(listOf(Color.Transparent, Color(0xCC000000)), side * .45f, h)
+                val border = Stroke(1.5.dp.toPx())
+                onDrawBehind {
+                    clipPath(path) {
+                        drawRect(sky)
+                        drawPath(far, Color(0xFF7D7D7D))
+                        drawPath(near, Color(0xFF383838))
+                        drawRect(shade)
+                    }
+                    drawPath(path, Color.White.copy(alpha = 0.22f), style = border)
+                }
             }
-            drawPath(path, Color.White.copy(alpha = 0.22f), style = Stroke(1.5.dp.toPx()))
-        }
+        )
+        // Brilho atrás do controle: só o alpha da camada anima (GPU), sem redesenhar a moldura
+        Box(
+            Modifier.fillMaxWidth().height(frameH)
+                .graphicsLayer { alpha = glow / 0.34f }
+                .drawBehind {
+                    drawRect(
+                        Brush.radialGradient(
+                            listOf(Color.White.copy(alpha = 0.34f), Color.Transparent),
+                            center = Offset(size.width / 2f, (size.height - 28.dp.toPx()) * .40f),
+                            radius = size.width * .48f
+                        )
+                    )
+                }
+        )
 
         // Pílulas do topo: marca e atalhos
         Row(
@@ -296,12 +333,14 @@ private fun Hero(model: ControllerModel, nav: (String) -> Unit) {
 
         // Selo central (logo) com anel girando e pulso
         Box(Modifier.align(Alignment.BottomCenter).size(badge), contentAlignment = Alignment.Center) {
-            Canvas(Modifier.fillMaxSize()) {
-                val rr = size.minDimension / 2f
-                drawCircle(Color.White.copy(alpha = 0.30f * (1f - ping)), rr * (0.82f + 0.18f * ping), style = Stroke(2.dp.toPx()))
-                drawCircle(Color(0xFF0A0A0A), rr - 3.dp.toPx())
-            }
-            Canvas(Modifier.fillMaxSize().rotate(spin)) {
+            Canvas(
+                Modifier.fillMaxSize().graphicsLayer {
+                    val k = 0.82f + 0.18f * ping
+                    scaleX = k; scaleY = k; alpha = 0.30f * (1f - ping)
+                }
+            ) { drawCircle(Color.White, size.minDimension / 2f - 1.dp.toPx(), style = Stroke(2.dp.toPx())) }
+            Canvas(Modifier.fillMaxSize()) { drawCircle(Color(0xFF0A0A0A), size.minDimension / 2f - 3.dp.toPx()) }
+            Canvas(Modifier.fillMaxSize().graphicsLayer { rotationZ = spin }) {
                 drawCircle(
                     Color.White.copy(alpha = 0.65f), size.minDimension / 2f - 3.dp.toPx(),
                     style = Stroke(1.5.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 10f)))

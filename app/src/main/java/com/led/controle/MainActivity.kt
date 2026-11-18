@@ -30,11 +30,12 @@ class MainActivity : ComponentActivity() {
     private val listener = object : InputManager.InputDeviceListener {
         override fun onInputDeviceAdded(deviceId: Int) = GamepadHub.refresh()
         override fun onInputDeviceRemoved(deviceId: Int) = GamepadHub.refresh()
-        override fun onInputDeviceChanged(deviceId: Int) = GamepadHub.refresh()
+        override fun onInputDeviceChanged(deviceId: Int) = GamepadHub.refresh(force = true)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CrashLog.install(this)
         enableEdgeToEdge()
         Cfg.init(this)
         Prefs.init(this)
@@ -63,6 +64,8 @@ fun AppRoot() {
     val view = LocalView.current
     LaunchedEffect(Prefs.keepOn) { view.keepScreenOn = Prefs.keepOn }
     BackHandler(enabled = route != "home") { back() }
+
+    CrashDialog()
 
     AnimatedContent(
         targetState = route,

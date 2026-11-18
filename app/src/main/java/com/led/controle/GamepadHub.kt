@@ -47,9 +47,15 @@ object GamepadHub {
             (s and InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK
     }
 
-    fun refresh() {
-        val list = InputDevice.getDeviceIds().toList().mapNotNull { InputDevice.getDevice(it) }.filter { isGamepad(it) }
-        devices = list
+    private var lastRefreshMs = 0L
+
+    /** Atualiza a lista de controles. Só troca o estado se algo mudou (evita recomposição à toa). */
+    fun refresh(force: Boolean = false) {
+        lastRefreshMs = android.os.SystemClock.uptimeMillis()
+        val list = runCatching {
+            InputDevice.getDeviceIds().toList().mapNotNull { InputDevice.getDevice(it) }.filter { isGamepad(it) }
+        }.getOrDefault(devices)
+        if (force || list.map { it.id } != devices.map { it.id }) devices = list
         if (list.none { it.id == selectedId }) select(list.firstOrNull()?.id ?: -1)
     }
 
@@ -68,7 +74,11 @@ object GamepadHub {
 
     private fun adopt(deviceId: Int): Boolean {
         if (deviceId != selectedId) {
-            if (devices.none { it.id == deviceId }) refresh()
+            // Limita a 1 consulta por segundo: antes cada evento de um dispositivo desconhecido
+            // chamava refresh() na thread principal e travava a tela.
+            if (devices.none { it.id == deviceId } &&
+                android.os.SystemClock.uptimeMillis() - lastRefreshMs > 1000
+            ) refresh()
             if (selectedId == -1 && devices.any { it.id == deviceId }) select(deviceId)
         }
         return deviceId == selectedId
